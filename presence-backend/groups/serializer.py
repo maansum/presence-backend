@@ -17,6 +17,8 @@ class GroupSerializer(serializers.ModelSerializer):
             if GroupModel.objects.filter(user=user,name=value).exists():
                 raise serializers.ValidationError("A group name already exists, try another")
             return value
+    
+    #d]hello
                       
 
 
