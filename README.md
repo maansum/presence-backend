@@ -1,3 +1,6 @@
-# presence-backend
+# Steps to run
 
-Django Code
+
+    pip install -r requirements.txt
+
+    
