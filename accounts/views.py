@@ -14,7 +14,7 @@ def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
     return {
-        'refresh': str(refresh),
+        #'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
 # Create your views here.
@@ -26,8 +26,9 @@ class UserRegistrationView(APIView):
             user= serializer.save()
             token = get_tokens_for_user(user)
             return Response(
-                {
+                { 'user':serializer.data,
                     'token':token,
+                 
                     'message':"Registration successful"
                 },
                 status= status.HTTP_201_CREATED
@@ -47,15 +48,15 @@ class UserLoginView(APIView):
             user=authenticate(email=email, password=password)
             if user is not None:
                 token = get_tokens_for_user(user)
+                userDetail= AllUserSerializer(user)
 
 
                 return Response({
+                    'user':userDetail.data,
                     'token':token,
                     'message':'Login successful '}, status= status.HTTP_200_OK)
             else:
-                return Response({'errors':{
-                    'non_field_errors':
-                    ['email or password is not valid']}},
+                return Response({'error':serializer.errors},
                                 status=status.HTTP_404_NOT_FOUND)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -37,7 +37,7 @@ class UserManager(BaseUserManager):
         return user
 
 def get_upload_path(instance, filename):
-    return os.path.join('profilePic',str(instance.name),filename)
+    return os.path.join('profilePic',str(instance.id),filename)
 
 # Create your  custom models here.
 class User(AbstractBaseUser):
