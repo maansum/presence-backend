@@ -2,8 +2,9 @@ from rest_framework.response import Response
 from rest_framework. views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from groups.models import GroupModel
-from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer
+from groups.models import GroupModel,Attendees
+from accounts.models import User
+from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer,AttendeesSerializer
 from rest_framework.exceptions import PermissionDenied, NotFound
 
 # create your views
@@ -72,6 +73,65 @@ class DeleteGroupView(APIView):
         group.delete()
 
         return Response({'message':'deleted successfully'})
+
+
+
+# view for attendees 
+
+class AttendeesView(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request,format=None):
+        action= request.data.get('action')
+        user_id= request.data.get('user')
+        group_id= request.data.get('group')
+         # Validate User ID
+        user_exists = User.objects.filter(id=user_id).exists()
+        if not user_exists:
+            return Response({'error': 'Invalid user ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate Group ID
+        group_exists = GroupModel.objects.filter(id=group_id).exists()
+        if not group_exists:
+            return Response({'error': 'Invalid group ID'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer= AttendeesSerializer(data=request.data)
+        if action.lower() =='add':
+
+            #for checking the user if he or she already added
+
+            check= Attendees.objects.filter(user_id=user_id,group_id=group_id).exists()
+            if check:
+                return Response({'message':'user already added in the group'},status=status.HTTP_400_BAD_REQUEST)
+           
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response({'message':'added successfully', 'details':serializer.data}, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    
+        elif action.lower()=='remove':
+           
+            try:
+                attendee= Attendees.objects.get(user_id=user_id,group_id=group_id)
+                attendee.delete()
+                return Response({'message':'successfully deleted'},status=status.HTTP_204_NO_CONTENT)
+            
+
+            except Attendees.DoesNotExist:
+                return Response({'error':'No such details found'},status=status.HTTP_404_NOT_FOUND)
+            
+
+        return Response({'error':'invalid action'},status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+        
+
+
+            
+
+        
+
 
 
     

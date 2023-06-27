@@ -82,13 +82,3 @@ class User(AbstractBaseUser):
 
 
 
-# model for setting user profile picture
-
-# class UserProfilePic(models.Model):
-#     user= models.OneToOneField(User,on_delete=models.CASCADE)
-#     profilePic= models.ImageField(upload_to='',
-#                                   null=True, blank=True)
-    
-#     def __str__(self):
-#         return self.user
-    

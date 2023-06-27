@@ -41,16 +41,10 @@ class UserLoginSerializer(serializers.ModelSerializer):
 class AllUserSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
-        fields=['id','email','name','phoneNumber']
-
-#serializer for setting profile pic
-
-# class UserProfilePicSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model=UserProfilePic
-#         fields=['profilePic']
+        fields=['id','email','name','phoneNumber','profilePic']
 
 
+# serializer for posting serializer
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
@@ -61,7 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
-
+#serializer for getting profile
 class GetProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model= User

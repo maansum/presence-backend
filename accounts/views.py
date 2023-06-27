@@ -71,47 +71,7 @@ class AllUserView(APIView):
 
 
 
-# view for the setting profile pic
 
-# class UserProfilePicView(APIView):
-#     permission_classes=[IsAuthenticated]
-
-#     parser_classes=[MultiPartParser, FormParser]
-#     def post(self, request, format=None):
-#         serializer= UserProfilePicSerializer(data= request.data,context={'user':request.user})
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({'message':'posted success fully'}, serializer.data,status=status.HTTP_200_OK)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
- 
-
-
-# for fetting the pic of the user
-# class GetUserProfilePicView(APIView):
-#     permission_classes=[IsAuthenticated]
-
-#     def get(self, request, format=None):
-#         user_profile= UserProfilePic.objects.get(user=request.user)
-#         if user_profile:
-#             serializer= UserProfilePicSerializer(user_profile)
-#             return Response(serializer.data,status=status.HTTP_200_OK)
-#         else:
-#             return Response({'message':'no user found'})
-
-
-# class GetUserProfilePicView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, format=None):
-#         try:
-#             user_profile = User.objects.get(user=request.user.id)
-#             print(user_profile)
-#             serializer = UserProfilePicSerializer(user_profile)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         except UserProfilePic.DoesNotExist:
-#             return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 #for posting th profile of the user who  login
