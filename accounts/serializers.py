@@ -10,7 +10,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
                                       write_only=True)
     class Meta:
         model= User
-        fields=['email','name', 'password','password2','phoneNumber']
+        fields=['id','email','name', 'password','password2','phoneNumber']
         extra_kwargs={
             'password':{'write_only':True}
         }
@@ -34,23 +34,17 @@ class UserLoginSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=225)
     class Meta:
         model= User
-        fields=['email','password']
+        fields=[ 'email','password']
 
 # for all user 
 
 class AllUserSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
-        fields=['id','email','name','phoneNumber']
-
-#serializer for setting profile pic
-
-# class UserProfilePicSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model=UserProfilePic
-#         fields=['profilePic']
+        fields=['id','email','name','phoneNumber','profilePic']
 
 
+# serializer for posting serializer
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model= User
@@ -61,7 +55,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
-
+#serializer for getting profile
 class GetProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model= User

@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from groups.models import GroupModel
-from accounts.serializers import UserLoginSerializer
+from groups.models import GroupModel,Attendees,User
+from accounts.serializers import UserLoginSerializer, UserRegistrationSerializer
 from accounts.models import User
 
 
@@ -44,9 +44,10 @@ class AllGroupSerializer(serializers.ModelSerializer):
         fields=['id','name','created_at']
 
 
-# serializer to delete the group 
+#serializer for attendees
 
-# class DeleteGroupSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model= GroupModel
-#         fields= '__all__'
+class AttendeesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=Attendees
+        fields=['action','user','group']
+          

@@ -14,7 +14,7 @@ def get_tokens_for_user(user):
     refresh = RefreshToken.for_user(user)
 
     return {
-        'refresh': str(refresh),
+        #'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
 # Create your views here.
@@ -26,8 +26,9 @@ class UserRegistrationView(APIView):
             user= serializer.save()
             token = get_tokens_for_user(user)
             return Response(
-                {
+                { 'user':serializer.data,
                     'token':token,
+                 
                     'message':"Registration successful"
                 },
                 status= status.HTTP_201_CREATED
@@ -47,15 +48,15 @@ class UserLoginView(APIView):
             user=authenticate(email=email, password=password)
             if user is not None:
                 token = get_tokens_for_user(user)
+                userDetail= AllUserSerializer(user)
 
 
                 return Response({
+                    'user':userDetail.data,
                     'token':token,
                     'message':'Login successful '}, status= status.HTTP_200_OK)
             else:
-                return Response({'errors':{
-                    'non_field_errors':
-                    ['email or password is not valid']}},
+                return Response({'error':serializer.errors},
                                 status=status.HTTP_404_NOT_FOUND)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -70,47 +71,7 @@ class AllUserView(APIView):
 
 
 
-# view for the setting profile pic
 
-# class UserProfilePicView(APIView):
-#     permission_classes=[IsAuthenticated]
-
-#     parser_classes=[MultiPartParser, FormParser]
-#     def post(self, request, format=None):
-#         serializer= UserProfilePicSerializer(data= request.data,context={'user':request.user})
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({'message':'posted success fully'}, serializer.data,status=status.HTTP_200_OK)
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
- 
-
-
-# for fetting the pic of the user
-# class GetUserProfilePicView(APIView):
-#     permission_classes=[IsAuthenticated]
-
-#     def get(self, request, format=None):
-#         user_profile= UserProfilePic.objects.get(user=request.user)
-#         if user_profile:
-#             serializer= UserProfilePicSerializer(user_profile)
-#             return Response(serializer.data,status=status.HTTP_200_OK)
-#         else:
-#             return Response({'message':'no user found'})
-
-
-# class GetUserProfilePicView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, format=None):
-#         try:
-#             user_profile = User.objects.get(user=request.user.id)
-#             print(user_profile)
-#             serializer = UserProfilePicSerializer(user_profile)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         except UserProfilePic.DoesNotExist:
-#             return Response({'message': 'User profile not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 #for posting th profile of the user who  login
