@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from groups.models import GroupModel,Attendees
 from accounts.models import User
 from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer,AttendeesSerializer
-from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.exceptions import PermissionDenied
 
 # create your views
 
@@ -16,21 +16,22 @@ class GroupCreateView(APIView):
     def post(self, request, format=None):
         serializer= GroupSerializer(data= request.data,context={'request':request})
         if serializer.is_valid(raise_exception= True):
-            serializer.save(user=request.user)
+            serializer.save(creator=request.user)
             return Response({'message':'group created successfully','data':serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
         
 # update the name of the group
 class UpdateGroupNameView(APIView):
     permission_classes=[IsAuthenticated]
     def put(self, request, pk):
         try:
-            group= GroupModel.objects.get(pk=pk, user=request.user)
+            group= GroupModel.objects.get(pk=pk, creator=request.user)
         except GroupModel.DoesNotExist:
             # raise NotFound('no such group found')
             return Response({'error':'no group found for provide id'},status=status.HTTP_400_BAD_REQUEST)
-        if group.user_id != request.user.id:
+        if group.creator_id != request.user.id:
             raise PermissionDenied("you can't access that group")
         
 
@@ -50,7 +51,7 @@ class GetAllGroupCreatedView(APIView):
     permission_classes=[IsAuthenticated]
     def get(self,request, format=None):
         try:
-            groups= GroupModel.objects.filter(user=request.user)
+            groups= GroupModel.objects.filter(creator=request.user)
         except GroupModel.DoesNotExist:
             return Response({'messsage':'no group available'})
         serializer= AllGroupSerializer(groups, many=True)
@@ -63,11 +64,11 @@ class DeleteGroupView(APIView):
     permission_classes=[IsAuthenticated]
     def delete(self, request, pk):
         try:
-            group= GroupModel.objects.get(pk=pk, user=request.user)
+            group= GroupModel.objects.get(pk=pk, creator=request.user)
         except GroupModel.DoesNotExist:
             # raise NotFound('no such group found')
             return Response({'error':'no group found for provide id'},status=status.HTTP_400_BAD_REQUEST)
-        if group.user_id != request.user.id:
+        if group.creator_id != request.user.id:
             raise PermissionDenied("you can't access that group")
 
         group.delete()

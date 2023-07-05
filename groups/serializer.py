@@ -10,15 +10,15 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model=GroupModel
 
-        fields=['id','name','created_at','user']
+        fields=['id','name','created_at']
 
     def validate_name(self,value):
             user= self.context['request'].user
-            if GroupModel.objects.filter(user=user,name=value).exists():
+            if GroupModel.objects.filter(creator=user,name=value).exists():
                 raise serializers.ValidationError("A group name already exists, try another")
             return value
     
-    #d]hello
+    
                       
 
 
@@ -27,11 +27,11 @@ class GroupSerializer(serializers.ModelSerializer):
 class UpdateGroupNameSerializer(serializers.ModelSerializer):
     class Meta:
           model= GroupModel
-          fields=['name','user_id']     
+          fields=['name','creator_id']     
           
     def validate_name(self,value):
             user= self.context['request'].user
-            if GroupModel.objects.filter(user=user,name=value).exists():
+            if GroupModel.objects.filter(creator=user,name=value).exists():
                 raise serializers.ValidationError("A group name already exists, try another")
             return value   
 
@@ -41,7 +41,7 @@ class UpdateGroupNameSerializer(serializers.ModelSerializer):
 class AllGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model=GroupModel
-        fields=['id','name','created_at']
+        fields=['id','name','created_at','creator']
 
 
 #serializer for attendees
