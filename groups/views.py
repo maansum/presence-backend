@@ -131,8 +131,8 @@ class AttendeesView(APIView):
 class AttendeesOfGroup(APIView):
     permission_classes=[IsAuthenticated]
 
-    def get(self, request, format=None):
-        group_id=request.data.get('group')
+    def get(self, request, pk):
+        group_id=pk
         if group_id is None:
             return Response({'error':'group id is essential'},status=status.HTTP_400_BAD_REQUEST)
 
