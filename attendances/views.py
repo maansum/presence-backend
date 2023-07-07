@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from attendances.serializer import AttendanceSerializer
+from attendances.serializer import AttendanceSerializer,PictureSerializer
 from groups.models import GroupModel
 from attendances.models import Attendance
 from datetime import date
@@ -86,5 +86,71 @@ class AttendanceUpdateView(APIView):
         
 
 
+# to get attendance of the group of any day
 
+class GetAttendanceView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request, format=None):
+        
+        group_id= request.data.get('group')
+        date= request.data.get('date')
+    
+        try:
+            group = GroupModel.objects.get(id=group_id)
+        except GroupModel.DoesNotExist:
+            return Response({'error': 'No such group id found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if group.creator_id != request.user.id:
+            return Response({'error': 'You cannot access attendance records of this group'}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        attendance= Attendance.objects.filter(group_id=group_id,date=date)
+        if not attendance.exists():
+            return Response({'error':'no any details'},status=status.HTTP_204_NO_CONTENT)
+        
+        
+        present_user_ids = attendance.values_list('present_user_id',flat=True)
+        return Response({'present_user': list(present_user_ids)}, status=status.HTTP_200_OK)
+        
+
+        # serializer = GetAttendanceSerializer(attendance, many=True)
+
+        # return Response({'group': group_id, 'present_user': 
+        #                  serializer.data, 'date': date}, status=status.HTTP_200_OK)
+
+
+
+
+#to get the records of the user 
+
+# class RecordsView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, format=None):
+#         user_id = request.user.id
+#         # Find the groups where the user_id is an attendee
+#         groups = GroupModel.objects.filter(attendees__user_id=user_id)
+        
+#         group_names = [group.name for group in groups]
+#         return Response({'groups': group_names})
+                
+                
+
+
+# view for photoPosting
+
+
+class PictureView(APIView):
+    permission_classes=[IsAuthenticated]
+    def post(self,request, format=None):
+        user= request.user
+        serializer= PictureSerializer( data= request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'user_id':user.id,'profile':serializer.data},status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
+         
+        
 

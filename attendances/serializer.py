@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from rest_framework.response import Response
-from attendances.models import Attendance
+from attendances.models import Attendance,Picture
 from groups.models import Attendees
 from accounts.models import User
+import os
+# from accounts.serializers import UserRegistrationSerializer
 
 
 
@@ -33,4 +35,38 @@ class AttendanceSerializer(serializers.ModelSerializer):
         Attendance.objects.bulk_create(attendance_instances)
 
         return attendance_instances
+    
+#make user serializer
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=['id','name','email']
+
+# get attendance seriaizer
+class GetAttendanceSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Attendance
+        fields = ['present_user']
+
+    # def get_present_user(self, attendance):
+    #     user_ids = attendance.values_list('present_user_id', flat=True)
+    #     users = User.objects.filter(id__in=user_ids)
+    #     return users
+
+
+# serializer for attendance photos
+
+class PictureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model= Picture
+        fields=['group','photoPath','date']
+
+    def update(self, instance, validated_data):
+        instance.photoPath = validated_data.get('photoPath', instance.photoPath)
+        instance.save()
+        return instance
+    
+    
+                

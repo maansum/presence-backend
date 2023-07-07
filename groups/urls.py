@@ -1,5 +1,5 @@
 from django.urls import path
-from groups.views import GroupCreateView,UpdateGroupNameView,GetAllGroupCreatedView,DeleteGroupView, AttendeesView
+from groups.views import GroupCreateView,UpdateGroupNameView,GetAllGroupCreatedView,DeleteGroupView, AttendeesView,AttendeesOfGroup
 
 
 urlpatterns=[
@@ -8,6 +8,8 @@ urlpatterns=[
     path('groups/',GetAllGroupCreatedView.as_view(),name='getall group'),
     path('delete/<int:pk>',DeleteGroupView.as_view(),name='delete group'),
     path('attendees/' ,AttendeesView.as_view(), name='attendees'),
+    path('attendeesOfGroup/' ,AttendeesOfGroup.as_view(), name='attendees'),
+
 
 
 
