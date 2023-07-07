@@ -6,6 +6,7 @@ from groups.models import GroupModel,Attendees
 from accounts.models import User
 from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer,AttendeesSerializer
 from rest_framework.exceptions import PermissionDenied
+from accounts.serializers import AllUserSerializer
 
 # create your views
 
@@ -77,7 +78,7 @@ class DeleteGroupView(APIView):
 
 
 
-# view for attendees 
+# view for attendees adding and removing
 
 class AttendeesView(APIView):
     permission_classes=[IsAuthenticated]
@@ -125,9 +126,26 @@ class AttendeesView(APIView):
 
 
 
+# for getting the attendees of the group
 
-        
+class AttendeesOfGroup(APIView):
+    permission_classes=[IsAuthenticated]
 
+    def get(self, request, format=None):
+        group_id=request.data.get('group')
+        if group_id is None:
+            return Response({'error':'group id is essential'},status=status.HTTP_400_BAD_REQUEST)
+
+        users=Attendees.objects.filter(group_id=group_id).values('user_id')
+        user_ids = [user['user_id'] for user in users]
+        attendees=User.objects.filter(id__in=user_ids)
+        serializer= AllUserSerializer(attendees,many=True)
+
+        return Response({
+            'group':group_id,
+            'attendees': serializer.data})
+
+    
 
             
 

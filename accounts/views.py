@@ -102,4 +102,23 @@ class GetProfilePicView(APIView):
             return Response( serializer.data,status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-     
+        
+
+    
+
+# for providing the details of the user based on the token provided
+
+class TokenBasedView(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,format=None):
+        user_id =request.user.id
+        
+        try:
+            user= User.objects.get(id=user_id)
+       
+
+
+            serializer= AllUserSerializer(user)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        except user.DoesNotExist:
+              return Response({'message':'token not valid'},serializer.errors,status=status.HTTP_404_NOT_FOUND)
