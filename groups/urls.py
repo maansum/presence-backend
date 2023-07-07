@@ -8,7 +8,7 @@ urlpatterns=[
     path('groups/',GetAllGroupCreatedView.as_view(),name='getall group'),
     path('delete/<int:pk>',DeleteGroupView.as_view(),name='delete group'),
     path('attendees/' ,AttendeesView.as_view(), name='attendees'),
-    path('attendeesOfGroup/' ,AttendeesOfGroup.as_view(), name='attendees'),
+    path('attendeesOfGroup/<int:pk>/' ,AttendeesOfGroup.as_view(), name='attendees'),
 
 
 
