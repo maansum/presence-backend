@@ -56,7 +56,7 @@ class UserLoginView(APIView):
                     'token':token,
                     'message':'Login successful '}, status= status.HTTP_200_OK)
             else:
-                return Response({ 'message':'invalid email ', },
+                return Response({ 'message':'invalid inputs,check email or password', },
                                 status=status.HTTP_404_NOT_FOUND)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
