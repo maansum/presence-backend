@@ -2,11 +2,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from attendances.serializer import AttendanceSerializer,PictureSerializer
+from attendances.serializer import AttendanceSerializer,PictureSerializer,GetAttendanceSerializer
 from groups.models import GroupModel
 from attendances.models import Attendance
 from datetime import date
 from django.db.models import Q
+from accounts.models import User
 
 
 # Create your views here.
@@ -105,19 +106,17 @@ class GetAttendanceView(APIView):
             return Response({'error': 'You cannot access attendance records of this group'}, 
                             status=status.HTTP_400_BAD_REQUEST)
         
-        attendance= Attendance.objects.filter(group_id=group_id,date=date)
+        attendance= Attendance.objects.filter(group_id=group_id,date=date, status=1)
         if not attendance.exists():
             return Response({'error':'no any details'},status=status.HTTP_204_NO_CONTENT)
         
         
         present_user_ids = attendance.values_list('present_user_id',flat=True)
-        return Response({'present_user': list(present_user_ids)}, status=status.HTTP_200_OK)
+        present_users= User.objects.filter(id__in=present_user_ids)# id__in to deal with list 
+        serializer=GetAttendanceSerializer(present_users,many=True)
+        return Response({'group':group_id,'present_user': serializer.data}, status=status.HTTP_200_OK)
         
 
-        # serializer = GetAttendanceSerializer(attendance, many=True)
-
-        # return Response({'group': group_id, 'present_user': 
-        #                  serializer.data, 'date': date}, status=status.HTTP_200_OK)
 
 
 
@@ -152,5 +151,12 @@ class PictureView(APIView):
         else:
             return Response(serializer.errors, status= status.HTTP_400_BAD_REQUEST)
          
-        
+
+
+
+
+
+         
+
+
 

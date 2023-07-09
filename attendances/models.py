@@ -23,8 +23,11 @@ def get_upload_path(instance, filename):
     return os.path.join('pictures',str(group_id),filename)
 
 class Picture(models.Model):
-    group=models.OneToOneField(GroupModel,on_delete=models.CASCADE)
+    group=models.ForeignKey(GroupModel,on_delete=models.CASCADE)
     photoPath=models.ImageField(upload_to=get_upload_path)
                                   
     date=models.DateField(auto_now_add=True)
+
+
+
     

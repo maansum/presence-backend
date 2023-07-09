@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from groups.models import GroupModel,Attendees
 from accounts.models import User
-from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer,AttendeesSerializer
+from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer,AttendeesSerializer,InvolvementSerializer
 from rest_framework.exceptions import PermissionDenied
 from accounts.serializers import AllUserSerializer
 
@@ -115,7 +115,7 @@ class AttendeesView(APIView):
             try:
                 attendee= Attendees.objects.get(user_id=user_id,group_id=group_id)
                 attendee.delete()
-                return Response({'message':'successfully deleted'},status=status.HTTP_204_NO_CONTENT)
+                return Response({'message':'successfully deleted'},status=status.HTTP_200_OK)
             
 
             except Attendees.DoesNotExist:
@@ -144,8 +144,29 @@ class AttendeesOfGroup(APIView):
         return Response({
             'group':group_id,
             'attendees': serializer.data})
-
     
+
+
+# for getting the group where the user is involves 
+
+class InvolvedGroupView(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,format=None):
+            try:
+                user= request.user.id
+            
+
+                attendedGroups= Attendees.objects.filter(user_id=user)
+                group_ids= attendedGroups.values_list('group_id',flat=True)
+
+                groups= GroupModel.objects.filter(id__in=group_ids)
+
+                serializer= InvolvementSerializer(groups, many=True)
+                return Response({'involvement':serializer.data})
+            except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+     
 
             
 

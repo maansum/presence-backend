@@ -62,11 +62,18 @@ class PictureSerializer(serializers.ModelSerializer):
     class Meta:
         model= Picture
         fields=['group','photoPath','date']
-
     def update(self, instance, validated_data):
         instance.photoPath = validated_data.get('photoPath', instance.photoPath)
         instance.save()
         return instance
+
+
+        
+
     
-    
+# serialzer for showing the attendance of the present user 
+class GetAttendanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields= ['id','email','name','phoneNumber'] 
                 

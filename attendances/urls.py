@@ -7,6 +7,7 @@ urlpatterns=[
     path('getAttendance/',GetAttendanceView.as_view(), name='attendance getting'),
     path('pictures/',PictureView.as_view(), name='pictures'),
 
+
     # path('records/',RecordsView.as_view(),name='records')
     
 ]

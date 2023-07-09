@@ -50,4 +50,34 @@ class AttendeesSerializer(serializers.ModelSerializer):
     class Meta:
         model=Attendees
         fields=['action','user','group']
+
+
+#serializer for showing the group involves 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model=User
+        fields=['id','name','email','phoneNumber']
+
+     
+
+
+
+
+class InvolvementSerializer(serializers.ModelSerializer):
+    users = serializers.SerializerMethodField()
+
+    def get_users(self, obj):
+        user_ids = Attendees.objects.filter(group_id=obj.id).values_list('user_id', flat=True)
+        users = User.objects.filter(id__in=user_ids)
+        serializer = UserSerializer(users, many=True)
+        return serializer.data
+
+    class Meta:
+        model = GroupModel
+        fields = ['id', 'name', 'created_at', 'creator', 'users']
+    
+
+
+
           
