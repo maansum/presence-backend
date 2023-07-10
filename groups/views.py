@@ -7,6 +7,7 @@ from accounts.models import User
 from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroupSerializer,AttendeesSerializer,InvolvementSerializer
 from rest_framework.exceptions import PermissionDenied
 from accounts.serializers import AllUserSerializer
+from django.db import transaction
 
 # create your views
 
@@ -84,36 +85,56 @@ class AttendeesView(APIView):
     permission_classes=[IsAuthenticated]
     def post(self,request,format=None):
         action= request.data.get('action')
-        user_id= request.data.get('user')
+        user_ids= request.data.get('user',[])
         group_id= request.data.get('group')
          # Validate User ID
-        user_exists = User.objects.filter(id=user_id).exists()
+
+        
+        user_exists = User.objects.filter(id__in=user_ids).exists()
         if not user_exists:
-            return Response({'error': 'Invalid user ID'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'user may not be register'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
 
         # Validate Group ID
         group_exists = GroupModel.objects.filter(id=group_id).exists()
         if not group_exists:
             return Response({'error': 'Invalid group ID'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer= AttendeesSerializer(data=request.data)
-        if action.lower() =='add':
+        serializer= AttendeesSerializer(data=request.data,many=True)
+        if action.lower()=='add':
+            with transaction.atomic():
+                existing_attendees = Attendees.objects.filter(user_id__in=user_ids, group_id=group_id).exists()
+                if existing_attendees:
+                    return Response({'message':'User already present'},status=status.HTTP_400_BAD_REQUEST)
 
-            #for checking the user if he or she already added
+                #existing_user_ids = {attendee.user_id for attendee in existing_attendees}
+                new_attendees=[]
+                for user_id in user_ids:
+                    new_attendees.append(user_id)
+                        
+            
 
-            check= Attendees.objects.filter(user_id=user_id,group_id=group_id).exists()
-            if check:
-                return Response({'message':'user already added in the group'},status=status.HTTP_400_BAD_REQUEST)
+                Attendees.objects.bulk_create(new_attendees)
+
+            return Response({'message': 'Users added successfully'}, status=status.HTTP_200_OK)
+        # if action.lower() =='add':
+
+        #     #for checking the user if he or she already added
+
+        #     check= Attendees.objects.filter(user_id=user_id,group_id=group_id).exists()
+        #     if check:
+        #         return Response({'message':'user already added in the group'},status=status.HTTP_400_BAD_REQUEST)
            
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response({'message':'added successfully', 'details':serializer.data}, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        #     if serializer.is_valid(raise_exception=True):
+        #         serializer.save()
+        #         return Response({'message':'added successfully', 'details':serializer.data}, status=status.HTTP_201_CREATED)
+        #     return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
     
         elif action.lower()=='remove':
            
             try:
-                attendee= Attendees.objects.get(user_id=user_id,group_id=group_id)
+                attendee= Attendees.objects.get(user_id=user_ids,group_id=group_id)
                 attendee.delete()
                 return Response({'message':'successfully deleted'},status=status.HTTP_200_OK)
             
