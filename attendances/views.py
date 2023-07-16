@@ -178,12 +178,12 @@ class AttendanceGroupView(APIView):
 
             serializer=AttendanceGroupSerializer(my_groups, context={'request':request},many=True)
 
-            for g in my_groups:
-             print(g)
+            # for g in my_groups:
+            #  print(g)
             return Response(serializer.data,status=status.HTTP_200_OK)
             
-        except :        
-            return Response({'error':'issues here'},status=status.HTTP_400_BAD_REQUEST)    
+        except Exception as e :        
+            return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)    
 
 
 

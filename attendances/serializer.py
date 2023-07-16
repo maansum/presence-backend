@@ -131,25 +131,53 @@ class MyGroupSerializer(serializers.ModelSerializer):
         model=GroupModel
         fields=['id','name','totalStudent']
     def get_totalStudent(self,obj):
-       
-        print(obj.id)
-        print('yo')
-
         total=Attendees.objects.filter(group_id=obj.id,).values_list('user_id',flat=True).count()
        
         return total
 
+class MyAttendanceSerializer(serializers.ModelSerializer):
+    presentStudent=serializers.SerializerMethodField()
+    date=serializers.SerializerMethodField()
+
+
+
+    class Meta:
+        model=Attendance
+        fields=['date','presentStudent']
+
+    def get_presentStudent(self,obj):
+        
+        present= Attendance.objects.filter(group_id=obj.group_id, date= obj.date,status=1).distinct().count()
+       
+        return present
+    
+    def get_date(self,obj):
+        dates= Attendance.objects.filter(group_id=obj.group_id).values_list('date',flat=True).distinct()
+        return dates.first()
+
 
 class AttendanceGroupSerializer(serializers.ModelSerializer):
     group=serializers.SerializerMethodField()
+    attendance=serializers.SerializerMethodField()
+
+
     class Meta:
         model=Attendance
-        fields=['group']
+        fields=['group','attendance']
     def get_group(self,obj):
         id=obj.id
-        print(id)
+        
         user=self.context['request'].user
-        print(user)
+        
         group=GroupModel.objects.get(id=id)
         serializer=MyGroupSerializer(group,context={'user':user})
+        return serializer.data
+    
+    def get_attendance(self,obj):
+        
+        groups=Attendance.objects.filter(group_id=obj.id).distinct()
+        for g in groups:
+            print(g.date)
+
+        serializer=MyAttendanceSerializer(groups,many=True)
         return serializer.data
