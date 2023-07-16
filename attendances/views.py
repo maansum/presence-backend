@@ -2,7 +2,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from attendances.serializer import AttendanceSerializer,PictureSerializer,GetAttendanceSerializer,MyAttendanceReportSerializer
+from attendances.serializer import AttendanceSerializer,PictureSerializer,GetAttendanceSerializer,MyAttendanceReportSerializer,AttendanceGroupSerializer
 from groups.models import GroupModel
 from attendances.models import Attendance
 from datetime import date
@@ -154,7 +154,7 @@ class MyAttendanceReportView(APIView):
             attendedGroups= Attendees.objects.filter(user_id=user)
             group_ids= attendedGroups.values_list('group_id',flat=True)
 
-            groups= GroupModel.objects.filter(id__in=group_ids).distinct().values('id','name')
+            groups= GroupModel.objects.filter(id__in=group_ids).distinct().values('id')
 
             serializer= MyAttendanceReportSerializer(groups,context={'request':request},many=True)
     
@@ -164,9 +164,26 @@ class MyAttendanceReportView(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         
+
+
+#get attendance of the attendee of the the group i created
+
+class AttendanceGroupView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request,format=None):
+        user=request.user.id
+        try:
+            my_groups=GroupModel.objects.filter(creator_id=user)
+
+            serializer=AttendanceGroupSerializer(my_groups, context={'request':request},many=True)
+
+            for g in my_groups:
+             print(g)
+            return Response(serializer.data,status=status.HTTP_200_OK)
             
-              
-            
+        except :        
+            return Response({'error':'issues here'},status=status.HTTP_400_BAD_REQUEST)    
 
 
 
