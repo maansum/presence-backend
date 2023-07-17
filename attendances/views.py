@@ -2,13 +2,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from attendances.serializer import AttendanceSerializer,PictureSerializer,GetAttendanceSerializer
+from attendances.serializer import AttendanceSerializer,PictureSerializer,GetAttendanceSerializer,MyAttendanceReportSerializer,AttendanceGroupSerializer
 from groups.models import GroupModel
 from attendances.models import Attendance
 from datetime import date
 from django.db.models import Q
 from accounts.models import User
-
+from groups.models import Attendees
 
 # Create your views here.
 
@@ -121,20 +121,7 @@ class GetAttendanceView(APIView):
 
 
 
-#to get the records of the user 
 
-# class RecordsView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, format=None):
-#         user_id = request.user.id
-#         # Find the groups where the user_id is an attendee
-#         groups = GroupModel.objects.filter(attendees__user_id=user_id)
-        
-#         group_names = [group.name for group in groups]
-#         return Response({'groups': group_names})
-                
-                
 
 
 # view for photoPosting
@@ -155,7 +142,55 @@ class PictureView(APIView):
 
 
 
+#attendance reports of me where i am attendees 
+#MyAttendanceView
 
+class MyAttendanceReportView(APIView):
+    permission_classes=[IsAuthenticated]
+    
+    def get(self, request, fromat=None):
+        user= request.user.id
+        try:
+            attendedGroups= Attendees.objects.filter(user_id=user)
+            group_ids= attendedGroups.values_list('group_id',flat=True)
+
+            groups= GroupModel.objects.filter(id__in=group_ids).distinct().values('id')
+
+            serializer= MyAttendanceReportSerializer(groups,context={'request':request},many=True)
+    
+            return Response(serializer.data,status=status.HTTP_200_OK)
+           
+        except Exception as e:
+                return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
+
+
+#get attendance of the attendee of the the group i created
+
+class AttendanceGroupView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self,request,format=None):
+        user=request.user.id
+        try:
+            my_groups=GroupModel.objects.filter(creator_id=user)
+
+            serializer=AttendanceGroupSerializer(my_groups, context={'request':request},many=True)
+
+            # for g in my_groups:
+            #  print(g)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+            
+        except Exception as e :        
+            return Response({'error':str(e)},status=status.HTTP_400_BAD_REQUEST)    
+
+
+
+ 
+    
+    
+    
          
 
 
