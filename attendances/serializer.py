@@ -4,8 +4,9 @@ from attendances.models import Attendance,Picture
 from groups.models import Attendees,GroupModel
 from accounts.models import User
 from django.db.models import Count
+from functools import reduce
 import os
-from datetime import date
+#from datetime import date
 # from accounts.serializers import UserRegistrationSerializer
 
 
@@ -152,8 +153,10 @@ class MyAttendanceSerializer(serializers.ModelSerializer):
         return present
     
     def get_date(self,obj):
-        dates= Attendance.objects.filter(group_id=obj.group_id).values_list('date',flat=True).distinct()
-        return dates.first()
+        # dates= Attendance.objects.filter(group_id=obj.group_id).values_list('date',flat=True).distinct()
+        # unique_dates = set( d for d in dates)
+       
+        return obj.date
 
 
 class AttendanceGroupSerializer(serializers.ModelSerializer):
@@ -175,9 +178,17 @@ class AttendanceGroupSerializer(serializers.ModelSerializer):
     
     def get_attendance(self,obj):
         
-        groups=Attendance.objects.filter(group_id=obj.id).distinct()
-        for g in groups:
-            print(g.date)
+        groups = Attendance.objects.filter(group_id=obj.id,)
 
-        serializer=MyAttendanceSerializer(groups,many=True)
+        def filter_func(prev, curr):
+            dates = map(lambda x: x.date, prev)
+            if(curr.date not in dates):
+                prev.append(curr)
+            return prev 
+
+        filtered_groups = reduce(filter_func, groups, [] ) 
+
+        # print("Filtered groups: {}, original: {}".format(len(filtered_groups), len(groups)) )
+       
+        serializer=MyAttendanceSerializer(filtered_groups,many=True)
         return serializer.data
