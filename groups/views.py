@@ -101,7 +101,7 @@ class AttendeesView(APIView):
         if not group_exists:
             return Response({'error': 'Invalid group ID'}, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer = AttendeesSerializer(data=request.data,many=True)
+        #serializer = AttendeesSerializer(data=request.data,many=True)
         if action.lower()=='add': 
             with transaction.atomic():
                 existing_attendees = Attendees.objects.filter(user_id__in=user_ids, group_id=group_id).exists()
@@ -110,16 +110,19 @@ class AttendeesView(APIView):
 
                 #existing_user_ids = {attendee.user_id for attendee in existing_attendees}
                 new_attendees=[]
-                for user_id in user_ids:
-                    new_attendees.append(user_id)
+                # for user_id in user_ids:
+                #     new_attendees.append(user_id)
 
+                new_attendees = [Attendees(user_id=user_id, group_id=group_id) for user_id in user_ids]
 
-                        
-            
 
                 Attendees.objects.bulk_create(new_attendees)
 
             return Response({'message': 'Users added successfully'}, status=status.HTTP_200_OK)
+
+
+                        
+            
         
         # if action.lower() =='add':
 
