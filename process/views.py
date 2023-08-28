@@ -39,17 +39,20 @@ class CaptureView(APIView):
             student_images=[] 
             
             path= list(User.objects.all().values_list("profilePic")) 
-            print("path={}, len={},type={}".format(path,len(path),type(path[0])))
+           # print("path={}, len={},type={}".format(path,len(path),type(path[0])))
             # for p in path:
             #     print(p)
-            student_images=[p[0] for p in path]
+            student_images=[p[0] for p in path ]
             student_images= [ p for p in student_images if len(p)>0 ]
-            print("student_images={}, len={},type={}".format(student_images,len(student_images),type(student_images[0])))
-            
+           # print("student_images={}, len={},type={}".format(student_images,len(student_images),type(student_images[0])))
+            for p in student_images:
+                print(p)
             
             image_path= check_attendance(group_image_path,student_images)
-            print("image path={}".format(image_path))
-            
+            #print("image path={}".format(image_path))
+            for  p in image_path:
+                print(p)
+
             present_users= User.objects.filter(profilePic__in= image_path)
             present_user_ids = list(present_users.values_list('id', flat=True))
             
