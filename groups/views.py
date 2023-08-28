@@ -71,12 +71,12 @@ class DeleteGroupView(APIView):
             # raise NotFound('no such group found')
             return Response({'error':'no group found for provide id'},status=status.HTTP_400_BAD_REQUEST)
         if group.creator_id != request.user.id:
-            raise PermissionDenied("you can't access that group")
+            raise PermissionDenied("you can't access that group" )
 
         group.delete()
 
         return Response({'message':'deleted successfully'})
-
+ 
 
 
 # view for attendees adding and removing

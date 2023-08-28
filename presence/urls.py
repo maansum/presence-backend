@@ -9,6 +9,8 @@ urlpatterns = [
     path('auth/', include('accounts.urls')),
     path('group/', include('groups.urls')),
     path('attendance/', include('attendances.urls')),
+    path('capture/', include('process.urls')),
+
 
     ]
 
