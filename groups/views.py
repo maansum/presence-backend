@@ -196,8 +196,21 @@ class InvolvedGroupView(APIView):
      
 
             
+# for recommendation of the group to their home page except their groups
 
-        
+class RecommendedView(APIView):
+    permission_classes=[IsAuthenticated]
+    def get(self,request,format=None):
+        user_id= request.user.id
+
+        try:
+            groups= GroupModel.objects.exclude(creator_id=user_id)
+
+        except GroupModel.DoesNotExist:
+            return Response({'messsage':'no group available'},status=status.HTTP_400_BAD_REQUEST)
+        serializer= AllGroupSerializer(groups, many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
 
 
 
