@@ -40,15 +40,22 @@ class UpdateGroupNameSerializer(serializers.ModelSerializer):
 
 class AllGroupSerializer(serializers.ModelSerializer):
     attendees= serializers.SerializerMethodField()
+    creator_name= serializers.SerializerMethodField()
+
+
     class Meta:
         model=GroupModel
-        fields=['id','name','created_at','creator', 'attendees']
+        fields=['id','name','created_at','creator','creator_name','attendees']
 
     def get_attendees(self,obj):
         group_id=obj.id
         totalattendees= Attendees.objects.filter(group_id= group_id).count()
         return totalattendees
-         
+
+    def get_creator_name(self,obj):
+        user_name=  User.objects.filter(email=obj.creator).values('name')   
+
+        return user_name[0]['name']
          
 
 
