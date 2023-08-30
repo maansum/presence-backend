@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'groups',
     'attendances',
     'process',
+    'alert',
+   
 
 ]
 

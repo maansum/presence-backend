@@ -8,6 +8,7 @@ from groups.serializer import GroupSerializer,UpdateGroupNameSerializer,AllGroup
 from rest_framework.exceptions import PermissionDenied
 from accounts.serializers import AllUserSerializer
 from django.db import transaction
+from django.db.models import Q 
 
 # create your views
 
@@ -204,7 +205,10 @@ class RecommendedView(APIView):
         user_id= request.user.id
 
         try:
-            groups= GroupModel.objects.exclude(creator_id=user_id)
+            attendees_group=Attendees.objects.exclude(user_id=user_id).values('group_id')
+            groups= GroupModel.objects.exclude(Q(creator_id=user_id) | Q(id__in=attendees_group)
+            )
+
 
         except GroupModel.DoesNotExist:
             return Response({'messsage':'no group available'},status=status.HTTP_400_BAD_REQUEST)

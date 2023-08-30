@@ -10,6 +10,8 @@ urlpatterns = [
     path('group/', include('groups.urls')),
     path('attendance/', include('attendances.urls')),
     path('capture/', include('process.urls')),
+    path('alert/', include('alert.urls')),
+
 
 
     ]
