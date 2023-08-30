@@ -206,7 +206,7 @@ class RecommendedView(APIView):
 
         try:
             attendees_group=Attendees.objects.exclude(user_id=user_id).values('group_id')
-            groups= GroupModel.objects.exclude(Q(creator_id=user_id) | Q(id__in=attendees_group)
+            groups= GroupModel.objects.exclude(Q(creator_id=user_id) & Q(id__in=attendees_group)
             )
 
 
