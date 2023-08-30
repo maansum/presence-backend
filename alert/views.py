@@ -30,7 +30,7 @@ class AlertView(APIView):
             recipient= GroupModel.objects.filter(id=group_id).values_list('creator_id')
             print(recipient[0][0])
             if sender==recipient[0][0]:
-                return Response({'error':'you can send request to yourself'},status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error':'you cannot send request to yourself'},status=status.HTTP_400_BAD_REQUEST)
             request.data['sender']=sender
             request.data['to']=recipient[0][0]
 
@@ -39,7 +39,7 @@ class AlertView(APIView):
             serializer = AlertSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response({'message': 'Request Has been Sent','data': serializer.data }, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
