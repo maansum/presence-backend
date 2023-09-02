@@ -35,6 +35,9 @@ class AlertView(APIView):
             request.data['to']=recipient[0][0]
 
             print(request.data)
+            already=AlertModel.objects.filter(sender_id= sender ,to_id=recipient[0][0]).exists()
+            if already:
+                return Response({'message':'request already sent!'},status=status.HTTP_400_BAD_REQUEST)
 
             serializer = AlertSerializer(data=request.data)
             if serializer.is_valid():

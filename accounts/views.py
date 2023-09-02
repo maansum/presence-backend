@@ -64,7 +64,7 @@ class UserLoginView(APIView):
 class AllUserView(APIView):
     def get(self,request, format= None):
         
-        users = User.objects.all() #sab data haru row wise tancha
+        users = User.objects.all().order_by('-created_at',) #sab data haru row wise tancha
         serializer = AllUserSerializer(users, many=True)
         return Response({'users':serializer.data})
     
