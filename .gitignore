@@ -4,3 +4,5 @@ media
 media/*
 thunder-tests
 thunder-tests/*
+*/.DS_Store
+.DS_Store
