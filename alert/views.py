@@ -35,7 +35,7 @@ class AlertView(APIView):
             request.data['to']=recipient[0][0]
 
             print(request.data)
-            already=AlertModel.objects.filter(sender_id= sender ,to_id=recipient[0][0]).exists()
+            already=AlertModel.objects.filter(sender_id= sender ,to_id=recipient[0][0],group_id=group_id).exists()
             if already:
                 return Response({'message':'request already sent!'},status=status.HTTP_400_BAD_REQUEST)
 
@@ -55,25 +55,22 @@ class AlertDetailView(APIView):
     def get_object(self, pk):
         return get_object_or_404(AlertModel, pk=pk)
 
-    def get(self, request, pk):
-        try:
-            notification = self.get_object(pk)
-            serializer = AlertSerializer(notification)
-            return Response(serializer.data)
-        except AlertModel.DoesNotExist:
-            return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+  
 
     
     def put(self, request, pk):
         try:
             notification = self.get_object(pk)
+
+            if notification.read==True:
+                return Response({'message':'already confirmed'},status=status.HTTP_400_BAD_REQUEST)
+
             notification.read = True # Assuming you have a 'read' field in your Alert model
           
             notification.save()
-            serializer = AlertSerializer(notification)
-            return Response(serializer.data)
+          
+           
+            return Response({'message':'successfully read !'},status=status.HTTP_200_OK)
         except AlertModel.DoesNotExist:
             return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:

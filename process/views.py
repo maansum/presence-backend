@@ -15,7 +15,7 @@ module_directory = os.path.abspath("../presence-ai/src")
 if module_directory not in sys.path:
     sys.path.append(module_directory)
 
-import check_attendance as ca
+from  test_attendance import check_attendance as ca
 
 # Create your views here.
 # to take attendance the group photo is caputred
